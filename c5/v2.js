@@ -1,11 +1,31 @@
 var http = require('http');
 
-var getAllStudents = () => { console.log('get all students'); };
-var getStudent = () => { console.log('get student'); };
-var storeStudent = () => { console.log('store student'); };
-var deleteStudent = () => { console.log('delete student'); };
-var updateStudent = () => { console.log('update student'); };
-var patchStudent = () => { console.log('patch student'); };
+var getAllStudents = (req, res) => { 
+    console.log('get all students'); 
+};
+
+var getStudent = (req, res) => { 
+    console.log('retrieving student with name: ', req.params.name); 
+    res.write('retrieving student with name: ' + req.params.name);
+};
+
+var storeStudent = (req, res) => { 
+    console.log('store student'); 
+};
+
+var deleteStudent = (req, res) => { 
+    console.log('delete student'); 
+};
+
+var updateStudent = (req, res) => { 
+    console.log('updating student with id: ', req.params.id); 
+    res.write('updating student with id: ' + req.params.id);
+};
+
+var patchStudent = (req, res) => { 
+    console.log('patch student'); 
+};
+
 
 var routes = {
     get: [
@@ -52,6 +72,8 @@ var server = http.createServer((req, res) => {
     // }
     var regmatch = true;
     var index = undefined;
+    var varname = null;
+    var varvalue = null;
 
     for(let i = 0; i < routes[req.method.toLowerCase()].length; i++){
         var route = routes[req.method.toLowerCase()][i].route;
@@ -70,8 +92,9 @@ var server = http.createServer((req, res) => {
             var re = new RegExp('^' + regroute + '$');
             if(re.test(req.url)){ // req.url == /students/([a-zA-Z0-9\-_]*)
                 console.log(regroute,  ' == ', req.url);
-                var varname = routes[req.method.toLowerCase()][i].route.match(/\/:([a-zA-Z_]+)/)[1];
-                var varvalue = req.url.match(regroute)[1];
+                varname = routes[req.method.toLowerCase()][i].route.match(/\/:([a-zA-Z_]+)/)[1];
+                varvalue = req.url.match(regroute)[1];
+                console.log(varname + ' = ' + varvalue);
                 index = i;
                 break;
             }
@@ -79,7 +102,9 @@ var server = http.createServer((req, res) => {
     }
 
     if(index !== undefined){
-        routes[req.method.toLowerCase()][index].func()
+        req.params = {};
+        req.params[varname] = varvalue;
+        routes[req.method.toLowerCase()][index].func(req, res);
     }
 
     res.end();

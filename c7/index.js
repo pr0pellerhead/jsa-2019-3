@@ -6,6 +6,7 @@ var food = require('./handlers/food');
 
 var api = express();
 api.use(bodyParser.json());
+api.use(express.static('www'));
 
 api.get('/students', students.GetAllStudents);
 api.get('/students/:id', students.GetStudentByID);

@@ -9,13 +9,69 @@
 <body>
     <h1>Hello World!</h1>
     <button id="get-food-btn">Get Food</button>
+    <table border="1" width="50%">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+                <th>price</th>
+                <th>calories</th>
+                <th>delete</th>
+            </tr>
+        </thead>
+        <tbody class="data">
+
+        </tbody>
+    </table>
     <script>
+        var dataContainer = document.querySelector('.data');
         var getFoodBtn = document.querySelector('#get-food-btn');
         getFoodBtn.addEventListener('click', (e) => {
             fetch('http://127.0.0.1:8080/food')
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
+                for(let i = 0; i < data.length; i++){
+                    var tr = document.createElement('tr');
+
+                    var td1 = document.createElement('td');
+                    td1.innerText = data[i].id;
+                    tr.append(td1);
+
+                    var td2 = document.createElement('td');
+                    td2.innerText = data[i].name;
+                    tr.append(td2);
+
+                    var td3 = document.createElement('td');
+                    td3.innerText = data[i].price;
+                    tr.append(td3);
+
+                    var td4 = document.createElement('td');
+                    td4.innerText = data[i].calories;
+                    tr.append(td4);
+
+                    var td5 = document.createElement('td');
+                    // td5.innerText = data[i].id;
+                    var delBtn = document.createElement('button');
+                    delBtn.innerText = 'Delete';
+                    delBtn.addEventListener('click', function(e) {
+                        var parent = this.parentNode.parentNode
+                        // alert(`Delete ${data[i].id}`);
+                        fetch(
+                            `http://127.0.0.1:8080/food/${data[i].id}`,
+                            {method: 'delete'}
+                        )
+                        .then(res => res.text())
+                        .then(data => {
+                            parent.remove();
+                            console.log('deleted');
+                        });
+                    });
+                    td5.append(delBtn);
+                    tr.append(td5);
+
+                    dataContainer.appendChild(tr);
+                }
             });
         });
     </script>

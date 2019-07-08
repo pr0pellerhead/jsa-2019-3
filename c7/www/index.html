@@ -9,6 +9,12 @@
 <body>
     <h1>Hello World!</h1>
     <button id="get-food-btn">Get Food</button>
+    <hr/>
+    <input type="text" id="name" placeholder="name"/>
+    <input type="number" id="price" placeholder="price"/>
+    <input type="number" id="calories" placeholder="calories"/>
+    <button id="btn-add-food">Add food</button>
+    <hr/>
     <table border="1" width="50%">
         <thead>
             <tr>
@@ -26,6 +32,7 @@
     <script>
         var dataContainer = document.querySelector('.data');
         var getFoodBtn = document.querySelector('#get-food-btn');
+        var addFoodBtn = document.querySelector('#btn-add-food');
         getFoodBtn.addEventListener('click', (e) => {
             fetch('http://127.0.0.1:8080/food')
             .then(res => res.json())
@@ -73,6 +80,78 @@
                     dataContainer.appendChild(tr);
                 }
             });
+        });
+
+        addFoodBtn.addEventListener('click', function(){
+            var nameField = document.querySelector('#name');
+            var priceField = document.querySelector('#price');
+            var caloriesField = document.querySelector('#calories');
+
+            var validate = nameField.value.trim() != "" && nameField.value != undefined 
+                && priceField.value.trim() != "" && priceField.value != undefined 
+                && caloriesField.value.trim() != "" && caloriesField.value != undefined;
+
+            if(validate) {
+                var data = {
+                    id: Number(document.querySelector(".data tr:last-of-type td").innerText) + 1,
+                    name: nameField.value.trim(),
+                    price: Number(priceField.value.trim()),
+                    calories: Number(caloriesField.value.trim()),
+                };
+                fetch(
+                    'http://127.0.0.1:8080/food',
+                    {
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    }
+                )
+                .then(res => res.json())
+                .then(output => {
+                    var tr = document.createElement('tr');
+                    var td1 = document.createElement('td');
+                    td1.innerText = output.id;
+                    tr.append(td1);
+                    var td2 = document.createElement('td');
+                    td2.innerText = output.name;
+                    tr.append(td2);
+                    var td3 = document.createElement('td');
+                    td3.innerText = output.price;
+                    tr.append(td3);
+                    var td4 = document.createElement('td');
+                    td4.innerText = output.calories;
+                    tr.append(td4);
+                    // creating a td element to add the delete button
+                    var td5 = document.createElement('td');
+                    var delBtn = document.createElement('button');
+                    delBtn.innerText = 'Delete';
+                    delBtn.addEventListener('click', function(e) {
+                        var parent = this.parentNode.parentNode
+                        fetch(
+                            `http://127.0.0.1:8080/food/${output.id}`,
+                            {method: 'delete'}
+                        )
+                        .then(res => res.text())
+                        .then(data => {
+                            parent.remove();
+                        });
+                    });
+                    td5.append(delBtn);
+                    tr.append(td5);
+                    dataContainer.appendChild(tr);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+                nameField.value = '';
+                priceField.value = '';
+                caloriesField.value = '';
+                nameField.focus();
+            } else {
+                alert('Not all fields are filled in.');
+            }
         });
     </script>
 </body>

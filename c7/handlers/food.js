@@ -1,30 +1,23 @@
 var fs = require('fs');
+var modelFood = require('../models/food');
 
 var GetAllFood = (req, res) => {
-    fs.readFile('./food_list.json', 'utf8', (err, data) => {
-        if(err){
-            res.send('Could not read file');
-            return;
-        }
-        jData = JSON.parse(data);
-        res.send(jData);
-    });
+    modelFood.GetAll()
+   .then(data => {
+       return res.send(data);
+   })
+   .catch(err => {
+       return res.send('ERROR!');
+   });
 };
 
 var GetSingleFood = (req, res) => {
-    fs.readFile('./food_list.json', 'utf8', (err, data) => {
-        if(err){
-            res.send('Could not read file');
-            return;
-        }
-        var jData = JSON.parse(data);
-        var out = jData.filter((o) => {
-            return o.id == req.params.id;
-        });
-        if(out.length == 0){
-            return res.status(404).send('Not found');
-        }
-        return res.send(out[0]);
+    modelFood.GetSingle(req.params.id)
+    .then(data => {
+        return res.send(data);
+    })
+    .catch(err => {
+        return res.send('ERROR!');
     });
 }
 
